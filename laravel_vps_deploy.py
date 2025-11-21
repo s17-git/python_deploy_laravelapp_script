@@ -132,7 +132,8 @@ def install_mysql():
 
  # end new
     # Enable MySQL remote access (optional)
-    run(f"""sudo sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf""")
+    run(r"""sudo sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf""")
+
     run("sudo systemctl restart mysql")
     
     
