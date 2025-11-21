@@ -123,12 +123,14 @@ def install_mysql():
         # grand db
         for index, db_name in enumerate(dbs):
             sql_q = f"""
-            CREATE USER IF NOT EXISTS '{username}'@'%' IDENTIFIED BY '{userpassword}';
             GRANT ALL PRIVILEGES ON {db_name}.* TO '{username}'@'{access_scope}';
             GRANT CREATE ROUTINE, CREATE, ALTER, ALTER ROUTINE, EXECUTE, DROP ON {db_name}.* TO '{username}'@'{access_scope}';
             FLUSH PRIVILEGES;
             """
             run(f"""mysql -uroot -p'{mysql_root_password}' -e "{sql_q}" """) 
+        
+        more_user_account = input("Do you want  more user account ? (y/n): ").strip()
+
 
  # end new
     # Enable MySQL remote access (optional)
