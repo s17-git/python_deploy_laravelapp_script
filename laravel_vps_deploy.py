@@ -181,7 +181,9 @@ def install_laravel():
     run(f"sudo chmod 664 {env_path}")
     with open(env_path, "r") as f:
         env = f.read()
+    env = env.replace("APP_URL=http://localhost", f"APP_URL=https://{domain}")
     env = env.replace("DB_DATABASE=laravel", f"DB_DATABASE={mysql_db}")
+
     env = env.replace("DB_USERNAME=root", f"DB_USERNAME={mysql_user}")
     env = env.replace("DB_PASSWORD=", f"DB_PASSWORD={mysql_password}")
     with open(env_path, "w") as f:
