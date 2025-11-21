@@ -71,7 +71,7 @@ def install_mysql():
     UPDATE mysql.user SET Host='localhost' WHERE User='root';
     FLUSH PRIVILEGES;
     """
-    run(f"""sudo mysql -e "{secure_sql}" """)
+    run(f"""sudo mysql -u root -p -e "{secure_sql}" """)
 
     # Créer la base de données et l'utilisateur Laravel (appuser)
     db_setup_sql = f"""
