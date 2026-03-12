@@ -2,6 +2,8 @@ import os
 import subprocess
 import getpass
 
+# sudo timedatectl set-timezone Africa/Conakry
+
 # === PROMPTS UTILISATEUR ===
 project_name = input("🔧 Project name : ").strip()
 domain = input("🌐 DOMAINE NAME OR IP ADDR (ex: monsite.com) : ").strip()
@@ -26,6 +28,7 @@ def create_deploy_user():
         print(f"✅ Utilisateur {deploy_user} existe déjà.")
     except subprocess.CalledProcessError:
         run(f"sudo adduser --disabled-password --gecos '' {deploy_user}")
+        run(f"sudo usermod -s /usr/sbin/nologin {deploy_user}")
         print(f"✅ Utilisateur {deploy_user} créé.")
 
     # Ajouter deploy dans le groupe www-data
@@ -134,7 +137,7 @@ def install_mysql():
 
  # end new
     # Enable MySQL remote access (optional)
-    run(r"""sudo sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf""")
+    # run(r"""sudo sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf""")
 
     run("sudo systemctl restart mysql")
     
@@ -144,7 +147,9 @@ def install_mysql():
 def configure_firewall():
     run("sudo ufw allow OpenSSH")
     run("sudo ufw allow 'Apache Full'")
+    # run("sudo ufw allow 3306/tcp")
     run("sudo ufw --force enable")
+
 
 # === 4. CONFIGURATION DE FAIL2BAN ===
 def configure_fail2ban():
@@ -177,6 +182,7 @@ def install_laravel():
     run(f"sudo -u {deploy_user} composer install --no-interaction --prefer-dist --working-dir={project_dir}")
     run(f"sudo -u {deploy_user} cp {project_dir}/.env.example {project_dir}/.env")
     run(f"sudo -u {deploy_user} php {project_dir}/artisan key:generate")
+    run(f"sudo -u {deploy_user} php {project_dir}/artisan storage:link")
     run(f"sudo chown -R {deploy_user}:www-data {project_dir}")
 
     # Mise à jour du .env
@@ -229,13 +235,14 @@ def deploy():
     create_deploy_user()
     install_dependencies()
     install_mysql()
-    configure_firewall()
     configure_fail2ban()
     clone_project()
     set_permissions()
     install_laravel()
     configure_apache()
     enable_https()
+    configure_firewall()
+
     print(f"\n✅ Déploiement terminé ! Visitez https://{domain}")
 
 # === MAIN ===
